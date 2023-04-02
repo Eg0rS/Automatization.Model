@@ -1,0 +1,5 @@
+{
+  "port": 80,
+  "postgres": "postgres://postgres:postgres@localhost:5431/details?search_path=public&sslmode=disable",
+  "kafka": ""
+}
