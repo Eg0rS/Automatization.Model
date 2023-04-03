@@ -110,5 +110,14 @@ services:
         reservations:
           memory: 200M
 
+  clickhouse:
+    image: yandex/clickhouse-server
+    ports:
+      - 8123:8123
+      - 9000:9000
+    volumes:
+      - clickhousedb:/var/lib/clickhouse
+
 volumes:
   pg-data:
+  clickhousedb:
