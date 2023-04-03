@@ -31,3 +31,88 @@
     
     /delete/{id} - delete - обновляет флаг is_deleted у детали по id, удаленные детали по конвейру идти перестают
     /update - patch - обновляет все поля в модели детали кроме id 
+
+# 6*)	Clickhouse связывание кликахуса и кафки 
+	CREATE TABLE storage_queue
+(
+    Id        UInt64,
+    Long      Float64,
+    Width     Float64,
+    Height    Float64,
+    Color     String,
+    EventDate Date,
+    IsDeleted UInt8
+) ENGINE = Kafka('kafka:29092', 'storage_topic', 'group', 'JSONEachRow');
+
+CREATE TABLE stats_storage
+(
+    Id        UInt64,
+    Long      Float64,
+    Width     Float64,
+    Height    Float64,
+    Color     String,
+    EventDate Date,
+    IsDeleted UInt8
+) ENGINE = MergeTree()
+      ORDER BY (Id);
+
+
+CREATE MATERIALIZED VIEW storage TO stats_storage
+AS SELECT Id, Long, Width, Height, Color, EventDate, IsDeleted
+FROM storage_queue;
+
+CREATE TABLE verification_queue
+(
+    Id        UInt64,
+    Long      Float64,
+    Width     Float64,
+    Height    Float64,
+    Color     String,
+    EventDate Date,
+    IsDeleted UInt8
+) ENGINE = Kafka('kafka:29092', 'verification_topic', 'group', 'JSONEachRow');
+
+CREATE TABLE verification_storage
+(
+    Id        UInt64,
+    Long      Float64,
+    Width     Float64,
+    Height    Float64,
+    Color     String,
+    EventDate Date,
+    IsDeleted UInt8
+) ENGINE = MergeTree()
+      ORDER BY (Id);
+
+
+CREATE MATERIALIZED VIEW verification TO verification_storage
+AS SELECT Id, Long, Width, Height, Color, EventDate, IsDeleted
+FROM storage_queue;
+
+CREATE TABLE processing_queue
+(
+    Id        UInt64,
+    Long      Float64,
+    Width     Float64,
+    Height    Float64,
+    Color     String,
+    EventDate Date,
+    IsDeleted UInt8
+) ENGINE = Kafka('kafka:29092', 'processing_topic', 'group', 'JSONEachRow');
+
+CREATE TABLE processing_storage
+(
+    Id        UInt64,
+    Long      Float64,
+    Width     Float64,
+    Height    Float64,
+    Color     String,
+    EventDate Date,
+    IsDeleted UInt8
+) ENGINE = MergeTree()
+      ORDER BY (Id);
+
+
+CREATE MATERIALIZED VIEW processing TO processing_storage
+AS SELECT Id, Long, Width, Height, Color, EventDate, IsDeleted
+FROM storage_queue; 
