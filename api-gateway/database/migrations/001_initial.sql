@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS detail_stage_versions
     detail_id  int                NOT NULL,
     stage_id   int                NOT NULL,
     comment    text,
-    event_date timestamp          NOT NULL,
+    event_date timestamp          NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_detail_stage_versions_details
     FOREIGN KEY (detail_id)

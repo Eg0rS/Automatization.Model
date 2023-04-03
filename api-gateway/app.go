@@ -5,6 +5,7 @@ import (
 	"api-gateway/config"
 	"api-gateway/database"
 	"api-gateway/database/detailrepo"
+	kafka2 "api-gateway/kafka"
 	"api-gateway/lib/pctx"
 	"api-gateway/service"
 	"context"
@@ -30,7 +31,8 @@ func NewApp(ctxProvider pctx.DefaultProvider, logger *zap.SugaredLogger, setting
 	}
 
 	var (
-		detailRepo    = detailrepo.NewRepository(logger, pgDb)
+		kafka         = kafka2.NewKafka(logger, settings)
+		detailRepo    = detailrepo.NewRepository(logger, pgDb, kafka)
 		detailService = service.NewDetailService(logger, detailRepo)
 		server        = api.NewServer(ctxProvider, logger, settings, detailService)
 	)

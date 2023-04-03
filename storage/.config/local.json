@@ -1,0 +1,6 @@
+{
+  "postgres": "postgres://postgres:postgres@localhost:5431/details?search_path=public&sslmode=disable",
+  "read_topic": "storage_topic",
+  "kafka_url": "localhost:9092",
+  "write_topic": "verification_topic"
+}

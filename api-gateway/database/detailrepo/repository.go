@@ -2,22 +2,36 @@ package detailrepo
 
 import (
 	"api-gateway/database/detailrepo/query"
+	"api-gateway/kafka"
 	model "api-gateway/model"
 	"context"
+	"encoding/json"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 	"log"
+	"strconv"
 )
 
 type Repository struct {
 	logger *zap.SugaredLogger
 	db     *sqlx.DB
+	kafka  kafka.MyKafka
 }
 
-func NewRepository(logger *zap.SugaredLogger, db *sqlx.DB) Repository {
+func (r Repository) InsertDetails(detailStage DetailStageVersion) error {
+	var id int64
+	err := r.db.QueryRow(query.InsertDetailStageSql, detailStage.DetailId, detailStage.StageId, detailStage.Comment).Scan(&id)
+	if err != nil {
+		r.logger.Error(err)
+	}
+	return nil
+}
+
+func NewRepository(logger *zap.SugaredLogger, db *sqlx.DB, kafka kafka.MyKafka) Repository {
 	return Repository{
 		logger: logger,
 		db:     db,
+		kafka:  kafka,
 	}
 }
 
@@ -26,9 +40,21 @@ func (r Repository) Insert(ctx context.Context, detail model.Detail) (int64, err
 	var id int64
 	err := r.db.QueryRowContext(ctx, query.InsertDetailSql, data.Long, data.Width, data.Height, data.Color).Scan(&id)
 
+	var insertDetail Detail
+	err = r.db.GetContext(ctx, &insertDetail, query.SelectOneDetailSql, id)
 	if err != nil {
 		return 0, err
 	}
+
+	var result DetailStageVersion
+	result.StageId = 1
+	result.DetailId = id
+	result.Comment = "passed api"
+	r.InsertDetails(result)
+
+	marshalDetail, _ := json.Marshal(insertDetail)
+	var i = int(*insertDetail.Id)
+	r.kafka.Produce(ctx, []byte(strconv.Itoa(i)), marshalDetail)
 
 	return id, err
 }

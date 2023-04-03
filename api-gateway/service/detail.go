@@ -1,6 +1,7 @@
 package service
 
 import (
+	"api-gateway/database/detailrepo"
 	serviceModel "api-gateway/model"
 	"context"
 	"go.uber.org/zap"
@@ -12,6 +13,7 @@ type DetailRepository interface {
 	GetOne(ctx context.Context, id int64) (*serviceModel.Detail, error)
 	GetAll(ctx context.Context) ([]serviceModel.Detail, error)
 	DeleteOne(ctx context.Context, id int64) error
+	InsertDetails(detailStage detailrepo.DetailStageVersion) error
 }
 
 type DetailService struct {

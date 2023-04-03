@@ -40,14 +40,6 @@ services:
       KAFKA_RESTART_DELAY: "5"
       ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: "0"
       
-  clickhouse-server:
-    image: yandex/clickhouse-server
-    restart: "no"
-    ports:
-      - "8123:8123"
-      - "9000:9000"
-      - "9009:9009"
-
   api-geteway:
     build:
      context: api-gateway
@@ -59,6 +51,64 @@ services:
       - postgres
     networks:
       - default
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 1024M
+        reservations:
+          memory: 200M
+
+  storage:
+    build:
+     context: storage
+    environment:
+      "env": "prod"
+    depends_on:
+      - postgres
+    networks:
+      - default
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 1024M
+        reservations:
+          memory: 200M
+
+  verefication:
+    build:
+     context: verefication
+    environment:
+      "env": "prod"
+    depends_on:
+      - postgres
+    networks:
+      - default
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 1024M
+        reservations:
+          memory: 200M
+  
+  processing:
+    build:
+     context: processing
+    environment:
+      "env": "prod"
+    depends_on:
+      - postgres
+    networks:
+      - default
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 1024M
+        reservations:
+          memory: 200M
 
 volumes:
   pg-data:

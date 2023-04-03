@@ -1,5 +1,6 @@
 {
   "port": 80,
   "postgres": "postgres://postgres:postgres@postgres/details?search_path=public&sslmode=disable",
-  "kafka": ""
+  "kafka_topic": "storage_topic",
+  "kafka_url": "kafka:29092"
 }

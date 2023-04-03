@@ -11,3 +11,11 @@ type Detail struct {
 	EventDate *time.Time `db:"event_date"`
 	IsDeleted *bool      `db:"is_deleted"`
 }
+
+type DetailStageVersion struct {
+	Id        int64     `db:"id"`
+	DetailId  int64     `db:"detail_id"`
+	StageId   int64     `db:"stage_id"`
+	Comment   string    `db:"comment"`
+	EventDate time.Time `db:"event_date"`
+}
